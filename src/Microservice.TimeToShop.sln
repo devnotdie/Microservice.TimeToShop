@@ -1,0 +1,39 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{3D4332E4-BC71-4B34-A7B4-2056F98A4A84}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApiGateways", "ApiGateways", "{CC1C2F1D-6214-4087-87AD-F60A9DA9B747}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BuildingBlocks", "BuildingBlocks", "{F7684C26-3FC0-4E45-BE4D-C05132EDB73D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C0BBD9E6-7739-407C-B46B-72F9D894790B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{C99ACE9E-67C0-42D7-9808-9467E3EFC5C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.UnitTests", "..\tests\Identity\Identity.UnitTests\Identity.UnitTests.csproj", "{636254E7-3F20-4A79-9051-BCA726FFC40A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{636254E7-3F20-4A79-9051-BCA726FFC40A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{636254E7-3F20-4A79-9051-BCA726FFC40A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{636254E7-3F20-4A79-9051-BCA726FFC40A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{636254E7-3F20-4A79-9051-BCA726FFC40A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C99ACE9E-67C0-42D7-9808-9467E3EFC5C8} = {C0BBD9E6-7739-407C-B46B-72F9D894790B}
+		{636254E7-3F20-4A79-9051-BCA726FFC40A} = {C99ACE9E-67C0-42D7-9808-9467E3EFC5C8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {CAE4A216-6526-496E-94AC-9E83193BD797}
+	EndGlobalSection
+EndGlobal
