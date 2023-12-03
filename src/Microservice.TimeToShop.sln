@@ -13,11 +13,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{C0BBD9E6
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{C99ACE9E-67C0-42D7-9808-9467E3EFC5C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.UnitTests", "..\tests\Identity\Identity.UnitTests\Identity.UnitTests.csproj", "{636254E7-3F20-4A79-9051-BCA726FFC40A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.UnitTests", "..\tests\Identity\Identity.UnitTests\Identity.UnitTests.csproj", "{636254E7-3F20-4A79-9051-BCA726FFC40A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Identity", "Identity", "{B9A34CCD-D047-447B-A1E5-875C9F40F257}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.API", "Services\Identity\Identity.API\Identity.API.csproj", "{9C5E979B-4ACD-4CE2-9250-3ADC6492E5CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.API", "Services\Identity\Identity.API\Identity.API.csproj", "{9C5E979B-4ACD-4CE2-9250-3ADC6492E5CC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WebApp", "WebApp", "{C943A9C0-52D2-4694-AD47-352E281F30BE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
