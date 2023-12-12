@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace Identity.API.Models
 {
@@ -11,5 +11,11 @@ namespace Identity.API.Models
 		{
 			Email = userName;
 		}
+
+		[MaxLength(100)]
+		public string FirstName { get; set; }
+
+		[MaxLength(100)]
+		public string LastName { get; set; }
 	}
 }

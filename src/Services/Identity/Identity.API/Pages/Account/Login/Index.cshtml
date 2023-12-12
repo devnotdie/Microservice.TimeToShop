@@ -1,0 +1,52 @@
+@page
+@model Identity.API.Pages.Login.Index
+
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+    <div class="col-12 col-md-4">
+        <div class="col-12 mb-4">
+            <h1 class="text-center">Time To Shop</h1>
+        </div>
+        <div class="col-12 mb-4">
+            <h3 class="text-center">Log In</h3>
+        </div>
+        <div class="col-12 mb-4 text-center">
+            <ul class="list-inline justify-content-center">
+                @foreach (var provider in Model.View.ExternalProviders)
+                {
+                    <li class="list-inline-item">
+                        <a class="btn btn-lg btn-dark"
+                                asp-page="/ExternalLogin/Challenge"
+                                asp-route-scheme="@provider.AuthenticationScheme"
+                                asp-route-returnUrl="@Model.Input.ReturnUrl">
+                                <i class="bi @provider.Icon"></i>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="col-12 mb-4 text-center">
+            <div class="thirdparty-line">
+                <span>Or log in with</span>
+            </div>
+        </div>
+        <div class="col-12">
+            <partial name="_ValidationSummary" />
+            <form asp-page="/Account/Login/Index">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <div class="form-group mb-3">
+                    <input type="email" class="form-control" placeholder="Username" asp-for="Input.Email" autofocus>
+                </div>
+                <div class="form-group">
+                    <input type="password" class="form-control" placeholder="Password" asp-for="Input.Password" autocomplete="off">
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+</div>

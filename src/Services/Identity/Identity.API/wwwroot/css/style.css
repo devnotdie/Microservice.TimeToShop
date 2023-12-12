@@ -1,0 +1,33 @@
+﻿html,
+body {
+	height: 100%;
+}
+.thirdparty-line {
+	overflow: hidden;
+	white-space: nowrap;
+}
+	.thirdparty-line span {
+		position: relative;
+		display: inline-block;
+	}
+	.thirdparty-line span:before {
+		right: 100%;
+		margin-right: 20px;
+		width: 500px;
+		content: "";
+		height: 1px;
+		background-color: rgb(58, 4, 237, 0.50);
+		position: absolute;
+		top: 50%;
+	}
+
+	.thirdparty-line span:after {
+		left: 100%;
+		margin-left: 20px;
+		width: 500px;
+		content: "";
+		height: 1px;
+		background-color: rgb(58, 4, 237, 0.50);
+		position: absolute;
+		top: 50%;
+	}

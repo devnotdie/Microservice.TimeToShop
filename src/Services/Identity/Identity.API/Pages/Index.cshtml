@@ -1,0 +1,39 @@
+@page
+@model Identity.API.Pages.Home.Index
+
+
+<div class="container h-100">
+    <div class="row h-100 justify-content-center align-items-center">
+        <div class="col-12 col-md-4">
+            <div class="col-12 mb-4">
+                <h1 class="text-center">Time To Shop</h1>
+            </div>
+            @if (Model.IsAuthenticated)
+            {
+                <div class="col-12 mb-4">
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="account/logout" class="btn btn-primary">Logout</a>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="col-12 mb-4">
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="account/login" class="btn btn-primary">Log In</a>
+                    </div>
+                </div>
+                <div class="col-12 mb-4 text-center">
+                    <div class="thirdparty-line">
+                        <span>Or</span>
+                    </div>
+                </div>
+                <div class="col-12 mb-4">
+                    <div class="d-grid gap-2 mt-4">
+                        <a href="account/register" class="btn btn-primary">Sign Up</a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
