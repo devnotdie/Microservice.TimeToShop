@@ -1,20 +1,14 @@
-import {Component, OnInit} from '@angular/core';
-import {OidcSecurityService} from "angular-auth-oidc-client";
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
+  imports: [CommonModule, RouterOutlet],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent implements OnInit {
-  constructor(public oidcSecurityService: OidcSecurityService) {}
-
-  ngOnInit() {
-    this.oidcSecurityService
-      .checkAuth()
-      .subscribe(({ isAuthenticated, userData, accessToken }) => {
-        console.log('app authenticated', isAuthenticated);
-        console.log(`Current access token is '${accessToken}'`);
-      });
-  }
+export class AppComponent {
+  title = 'WebApp';
 }
