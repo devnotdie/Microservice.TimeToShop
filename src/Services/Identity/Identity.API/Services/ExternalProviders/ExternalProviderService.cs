@@ -1,6 +1,9 @@
 ﻿using Duende.IdentityServer.Stores;
 using Identity.API.Services.ExternalProviders.Models;
 using Microsoft.AspNetCore.Authentication;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Identity.API.Services.ExternalProviders
 {
@@ -24,9 +27,7 @@ namespace Identity.API.Services.ExternalProviders
 
 		public async Task<ICollection<ExternalProviderModel>> GetAllAsync()
 		{
-			var schemes = await _schemeProvider.GetAllSchemesAsync();
-
-			var providers = schemes
+			var providers = (await _schemeProvider.GetAllSchemesAsync())
 				.Where(x => x.DisplayName != null)
 				.Select(x => new ExternalProviderModel
 				{

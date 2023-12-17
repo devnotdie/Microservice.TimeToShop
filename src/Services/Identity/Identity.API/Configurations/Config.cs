@@ -1,5 +1,7 @@
 ﻿using Duende.IdentityServer;
 using Duende.IdentityServer.Models;
+using Microsoft.Extensions.Configuration;
+using System.Collections.Generic;
 
 namespace Identity.API.Configurations
 {

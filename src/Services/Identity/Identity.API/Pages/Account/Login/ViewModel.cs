@@ -1,6 +1,5 @@
-// Copyright (c) Duende Software. All rights reserved.
-// See LICENSE in the project root for license information.
 using Identity.API.Pages.Account.Shared.Models;
+using System.Collections.Generic;
 
 namespace Identity.API.Pages.Login
 {

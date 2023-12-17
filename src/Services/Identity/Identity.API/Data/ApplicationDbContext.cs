@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace Identity.API.Data
 {
@@ -10,6 +11,7 @@ namespace Identity.API.Data
 		public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
 			: base(options)
 		{
+			//Database.EnsureCreated();
 		}
 
 		protected override void OnModelCreating(ModelBuilder builder)

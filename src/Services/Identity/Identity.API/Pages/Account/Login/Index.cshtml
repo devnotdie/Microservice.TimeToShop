@@ -33,6 +33,7 @@
         <div class="col-12">
             <partial name="_ValidationSummary" />
             <form asp-page="/Account/Login/Index">
+             @*        @Html.AntiForgeryToken() *@
                 <input type="hidden" asp-for="Input.ReturnUrl" />
                 <div class="form-group mb-3">
                     <input type="email" class="form-control" placeholder="Username" asp-for="Input.Email" autofocus>
