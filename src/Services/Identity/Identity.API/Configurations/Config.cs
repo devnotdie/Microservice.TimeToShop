@@ -43,6 +43,17 @@ namespace Identity.API.Configurations
 					"web.full"
 				}
 			},
+			new()
+			{
+				ClientId = "fakeservice",
+				AllowedGrantTypes = GrantTypes.ClientCredentials,
+				ClientSecrets ={ new Secret("5038e66d61ab4054af678f996e890068".Sha256()) },
+				AllowOfflineAccess = true,
+				AllowedScopes =
+				{
+					"web.full"
+				}
+			},
 		};
 	}
 }

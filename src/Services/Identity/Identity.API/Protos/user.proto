@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+option csharp_namespace = "Identity.API.Protos";
+
+service UserGrpc{
+	rpc CreateUser(CreateUserRequest) returns (UserResponse) {}
+	rpc GetUser(UserRequest) returns (UserResponse) {}
+}
+
+message CreateUserRequest{
+	string email = 1;
+	string password = 2;
+	string firstName = 3;
+	string lastName = 4;
+}
+
+message UserResponse{
+	string id = 1;
+	string email = 2;
+	string firstName = 3;
+	string lastName = 4;
+}
+
+message UserRequest{
+	string id = 1;
+}

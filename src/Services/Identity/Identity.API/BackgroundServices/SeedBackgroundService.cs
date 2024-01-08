@@ -3,6 +3,7 @@ using Identity.API.Models;
 using IdentityModel;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
@@ -15,15 +16,25 @@ namespace Identity.API.BackgroundServices
 {
 	public class SeedBackgroundService : BackgroundService
 	{
+		private readonly IConfiguration _configuration;
 		private readonly IServiceProvider _serviceProvider;
 
-		public SeedBackgroundService(IServiceProvider serviceProvider)
+		public SeedBackgroundService(
+			IConfiguration configuration,
+			IServiceProvider serviceProvider)
 		{
+			_configuration = configuration;
 			_serviceProvider = serviceProvider;
 		}
 
 		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
 		{
+			var enable = _configuration.GetValue<bool>("Seed:Enable");
+			if (!enable)
+			{
+				return;
+			}
+
 			await using var scope = _serviceProvider.CreateAsyncScope();
 			var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -31,7 +42,8 @@ namespace Identity.API.BackgroundServices
 
 			await context.Database.MigrateAsync();
 
-			var email = "admin@gmail.com";
+			var email = _configuration["Seed:AdminEmail"];
+			var password = _configuration["ADMIN_PASSWORD"];
 			var roleName = "Admin";
 
 			var role = await roleManager.FindByNameAsync(roleName);
@@ -52,7 +64,7 @@ namespace Identity.API.BackgroundServices
 				{
 					EmailConfirmed = true,
 				};
-				var result = await userManager.CreateAsync(user, "Pass123$");
+				var result = await userManager.CreateAsync(user, password);
 				if (!result.Succeeded)
 				{
 					throw new Exception(result.Errors.First().Description);

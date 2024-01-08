@@ -2,18 +2,20 @@
 using Identity.API.BackgroundServices;
 using Identity.API.Configurations;
 using Identity.API.Data;
+using Identity.API.Grpc;
 using Identity.API.Models;
 using Identity.API.Services.ExternalProviders;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.IO;
-using System.Linq;
+using Microsoft.Extensions.Logging;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -25,9 +27,11 @@ namespace Identity.API
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			builder.Services.AddRazorPages();
-			//builder.Services.AddAntiforgery(options => { options.SuppressXFrameOptionsHeader = true; });
+			builder.Logging.AddFilter("Grpc", LogLevel.Debug);
 
+			builder.Services.AddGrpc();
+			builder.Services.AddGrpcReflection();
+			builder.Services.AddRazorPages();
 			builder.Services.AddDbContext<ApplicationDbContext>(options =>
 			{
 				var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -42,7 +46,6 @@ namespace Identity.API
 			builder.Services
 				.AddIdentityServer(options =>
 				{
-					//options.IssuerUri = "null";
 					options.Events.RaiseErrorEvents = true;
 					options.Events.RaiseInformationEvents = true;
 					options.Events.RaiseFailureEvents = true;
@@ -72,34 +75,26 @@ namespace Identity.API
 			builder.Services.AddHostedService<SeedBackgroundService>();
 			builder.Services.AddScoped<IExternalProviderService, ExternalProviderService>();
 
-			builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>();
+			builder.Services
+				.AddHealthChecks()
+				.AddDbContextCheck<ApplicationDbContext>();
 
 			var app = builder.Build();
 			if (app.Environment.IsDevelopment())
 			{
 				app.UseMigrationsEndPoint();
+				app.MapGrpcReflectionService();
 			}
 
 			app.UseStaticFiles();
-			app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });	
+			app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 			app.UseRouting();
 			app.UseIdentityServer();
 			app.UseAuthorization();
 
+			app.MapGrpcService<UserGrpcService>();
 			app.MapRazorPages();
 			app.MapHealthChecks("/health");
-			app.MapGet("/test", (HttpContext context) =>
-			{
-				//var c = context.RequestServices.GetRequiredService<IConfiguration>();
-				//var connectionString = c.GetConnectionString("DefaultConnection");
-				//var ss = string.Format(connectionString, builder.Configuration["DB_PASSWORD"]);	
-				//return $"G - {ss}";
-
-				var c = context.RequestServices.GetRequiredService<ApplicationDbContext>();
-				var r = c.Database.CanConnect();
-				return $"DBCONNECT - {r}";
-			});
-
 			await app.RunAsync();
 		}
 	}
