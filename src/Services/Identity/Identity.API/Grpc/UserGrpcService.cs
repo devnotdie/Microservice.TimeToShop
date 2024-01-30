@@ -1,41 +1,62 @@
-﻿using Grpc.Core;
-using Identity.API.Models;
+﻿using BuildingBlocks.Grpc.Extensions;
+using Grpc.Core;
 using Identity.API.Protos;
-using Microsoft.AspNetCore.Identity;
+using Identity.API.Services.User;
+using Identity.API.Services.User.Models;
+using Microsoft.AspNetCore.Authorization;
+using System;
 using System.Threading.Tasks;
 
 namespace Identity.API.Grpc
 {
+	[Authorize(AuthenticationSchemes ="Bearer", Roles = "Admin")]
 	public class UserGrpcService : UserGrpc.UserGrpcBase
 	{
-		//private readonly UserManager<ApplicationUser> _userManager;
+		private readonly IUserService _userService;
 
-		//public UserGrpcService(UserManager<ApplicationUser> userManager)
-		//{
-		//	_userManager = userManager;
-		//}
-
-		public override Task<UserResponse> CreateUser(CreateUserRequest request, ServerCallContext context)
+		public UserGrpcService(IUserService userService)
 		{
-			return base.CreateUser(request, context);
+			_userService = userService;
+		}
+
+		public override async Task<CreateUserResponse> CreateUser(CreateUserRequest request, ServerCallContext context)
+		{
+			var result = await _userService.AddUserAsync(new CreateUserModel
+			{
+				Email = request.Email,
+				Password = request.Password,
+				FirstName = request.FirstName,
+				LastName = request.LastName,
+			});
+
+			if (result.IsFailed)
+			{
+				context.Status = result.ToGrpcFailResult();
+				return new CreateUserResponse();
+			}
+
+			return new CreateUserResponse
+			{
+				Id = result.Value.Id.ToString()
+			};
 		}
 
 		public override async Task<UserResponse> GetUser(UserRequest request, ServerCallContext context)
 		{
-			//var user = await _userManager.FindByIdAsync(request.Id);
-			//if (user != null)
-			//{
-			//	return new UserResponse
-			//	{
-			//		Id = user.Id.ToString(),
-			//		Email = user.Email,
-			//		FirstName = user.FirstName,
-			//		LastName = user.LastName
-			//	};
-			//}
+			var result = await _userService.GetUserByIdAsync(Guid.Parse(request.Id));
+			if (result.IsFailed)
+			{
+				context.Status = result.ToGrpcFailResult();
+				return new UserResponse();
+			}
 
-			context.Status = new Status(StatusCode.NotFound, "User not found");
-			return new UserResponse();
+			return new UserResponse
+			{
+				Id = result.Value.Id.ToString(),
+				Email = result.Value.Email,
+				FirstName = result.Value.FirstName,
+				LastName = result.Value.LastName
+			};
 		}
 	}
 }

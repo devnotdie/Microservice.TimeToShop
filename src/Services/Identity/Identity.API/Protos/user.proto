@@ -3,7 +3,7 @@ syntax = "proto3";
 option csharp_namespace = "Identity.API.Protos";
 
 service UserGrpc{
-	rpc CreateUser(CreateUserRequest) returns (UserResponse) {}
+	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse) {}
 	rpc GetUser(UserRequest) returns (UserResponse) {}
 }
 
@@ -19,6 +19,10 @@ message UserResponse{
 	string email = 2;
 	string firstName = 3;
 	string lastName = 4;
+}
+
+message CreateUserResponse{
+	string id = 1;
 }
 
 message UserRequest{

@@ -20,6 +20,7 @@ namespace Identity.API.Pages.Account.Register
 		[Required]
 		public string LastName { get; set; }
 
+
 		public string ReturnUrl { get; set; }
 	}
 }

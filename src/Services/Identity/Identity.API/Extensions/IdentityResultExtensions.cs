@@ -1,25 +1,16 @@
-﻿using BuildingBlocks.Common.Models.Result;
+﻿using FluentResults;
 using Microsoft.AspNetCore.Identity;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Identity.API.Extensions
 {
 	public static class IdentityResultExtensions
 	{
-		public static Result<T> ToFailureResult<T>(this IdentityResult identityResult)
+		public static Result ToFailResult(this IdentityResult identityResult, string errorMessage)
 		{
-			return Result<T>.Failure(GetIdentityDescriptions(identityResult.Errors));
-		}
-
-		public static Result ToFailureResult(this IdentityResult identityResult)
-		{
-			return Result.Failure(GetIdentityDescriptions(identityResult.Errors));
-		}
-
-		private static ICollection<string> GetIdentityDescriptions(IEnumerable<IdentityError> identityErrors)
-		{
-			return identityErrors.Select(e => e.Description).ToArray();
+			var error = new Error(errorMessage);
+			error.CausedBy(identityResult.Errors.Select(e => e.Description));
+			return error;
 		}
 	}
 }

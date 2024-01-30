@@ -5,10 +5,10 @@
 			"launchBrowser": false,
 			"environmentVariables": {
 				"ASPNETCORE_ENVIRONMENT": "Development",
-				//	"ASPNETCORE_HTTP_PORTS": "5000",
 				"Kestrel__Endpoints__HTTP__Url": "http://localhost:5000",
-				"Kestrel__Endpoints__GRPC__Url": "http://localhost:5001",
-				"Kestrel__Endpoints__GRPC__Protocols": "Http2"
+				"Kestrel__Endpoints__GPRC__Url": "http://localhost:5001",
+				"Kestrel__Endpoints__GPRC__Protocols": "Http2",
+				"Identity__Url": "http://localhost:5000"
 			},
 			// "applicationUrl": "https://localhost:5001",
 			"useSSL": false

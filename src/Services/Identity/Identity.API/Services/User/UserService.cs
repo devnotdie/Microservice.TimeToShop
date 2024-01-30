@@ -1,4 +1,6 @@
-﻿using BuildingBlocks.Common.Models.Result;
+﻿using AutoMapper;
+using BuildingBlocks.Common.Errors;
+using FluentResults;
 using Identity.API.Extensions;
 using Identity.API.Models;
 using Identity.API.Services.User.Models;
@@ -13,50 +15,64 @@ namespace Identity.API.Services.User
 {
 	public interface IUserService
 	{
-		Task<Result<ApplicationUser>> AddUserAsync(CreateUser createUser, HashSet<string> roleNames);
+		Task<Result<UserModel>> AddUserAsync(CreateUserModel userModel);
+
+		Task<Result<UserModel>> AddUserAsync(CreateUserModel createUser, HashSet<string> roleNames);
+
+		Task<Result<UserModel>> GetUserByIdAsync(Guid id);
 	}
 
 	public class UserService : IUserService
 	{
+		private readonly IMapper _mapper;
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly RoleManager<ApplicationRole> _roleManager;
 
 		public UserService(
+			IMapper mapper,
 			UserManager<ApplicationUser> userManager,
 			RoleManager<ApplicationRole> roleManager)
 		{
+			_mapper = mapper;
 			_userManager = userManager;
 			_roleManager = roleManager;
 		}
 
-		public async Task<Result<ApplicationUser>> AddUserAsync(CreateUser createUser, HashSet<string> roleNames)
+		public Task<Result<UserModel>> AddUserAsync(CreateUserModel userModel)
 		{
-			ArgumentNullException.ThrowIfNull(createUser);
+			ArgumentNullException.ThrowIfNull(userModel);
+
+			return AddUserAsync(userModel, []);
+		}
+
+		public async Task<Result<UserModel>> AddUserAsync(CreateUserModel userModel, HashSet<string> roleNames)
+		{
+			ArgumentNullException.ThrowIfNull(userModel);
 			ArgumentNullException.ThrowIfNull(roleNames);
 
 			var result = await CreateRoles(roleNames);
-			if (!result.Successful)
+			if (result.IsFailed)
 			{
-				return Result<ApplicationUser>.Failure(result);
+				return result;
 			}
 
-			var user = await _userManager.FindByEmailAsync(createUser.Email);
+			var user = await _userManager.FindByEmailAsync(userModel.Email);
 			if (user != null)
 			{
-				throw new Exception("User already exists");
+				return Result.Fail(new ValidationError("User already exists"));
 			}
 
-			user = new ApplicationUser(createUser.Email)
+			user = new ApplicationUser(userModel.Email)
 			{
-				FirstName = createUser.FirstName,
-				LastName = createUser.LastName,
+				FirstName = userModel.FirstName,
+				LastName = userModel.LastName,
 				EmailConfirmed = true
 			};
 
-			var identityResult = await _userManager.CreateAsync(user, createUser.Password);
+			var identityResult = await _userManager.CreateAsync(user, userModel.Password);
 			if (!identityResult.Succeeded)
 			{
-				return identityResult.ToFailureResult<ApplicationUser>();
+				return identityResult.ToFailResult("User cannot be added");
 			}
 
 			foreach (var roleName in roleNames)
@@ -64,7 +80,7 @@ namespace Identity.API.Services.User
 				identityResult = await _userManager.AddToRoleAsync(user, roleName);
 				if (!identityResult.Succeeded)
 				{
-					return identityResult.ToFailureResult<ApplicationUser>();
+					return identityResult.ToFailResult("Role cannot be added");
 				}
 			}
 
@@ -73,11 +89,22 @@ namespace Identity.API.Services.User
 				identityResult = await _userManager.AddClaimAsync(user, new Claim(JwtClaimTypes.Role, roleName));
 				if (!identityResult.Succeeded)
 				{
-					return identityResult.ToFailureResult<ApplicationUser>();
+					return identityResult.ToFailResult("Claim cannot be added");
 				}
 			}
 
-			return Result<ApplicationUser>.Success(user);
+			return _mapper.Map<UserModel>(user).ToResult();
+		}
+
+		public async Task<Result<UserModel>> GetUserByIdAsync(Guid id)
+		{
+			var user = await _userManager.FindByIdAsync(id.ToString());
+			if (user == null)
+			{
+				return Result.Fail("User not found");
+			}
+
+			return _mapper.Map<UserModel>(user).ToResult();
 		}
 
 		private async Task<Result> CreateRoles(HashSet<string> roleNames)
@@ -96,11 +123,11 @@ namespace Identity.API.Services.User
 				var result = await _roleManager.CreateAsync(role);
 				if (!result.Succeeded)
 				{
-					return result.ToFailureResult();
+					return result.ToFailResult("Role cannot be created");
 				}
 			}
 
-			return Result.Success();
+			return Result.Ok();
 		}
 	}
 }

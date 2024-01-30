@@ -1,11 +1,10 @@
 using AutoMapper;
-using Identity.API.Models;
 using Identity.API.Pages.Account.Shared.Models;
 using Identity.API.Services.ExternalProviders;
-using Microsoft.AspNetCore.Identity;
+using Identity.API.Services.User;
+using Identity.API.Services.User.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,16 +14,16 @@ namespace Identity.API.Pages.Account.Register
 	public class Index : PageModel
 	{
 		private readonly IMapper _mapper;
-		private readonly UserManager<ApplicationUser> _userManager;
+		private readonly IUserService _userService;
 		private readonly IExternalProviderService _externalProviderService;
 
 		public Index(
 			IMapper mapper,
-			UserManager<ApplicationUser> userManager,
+			IUserService userService,
 			IExternalProviderService externalProviderService)
 		{
 			_mapper = mapper;
-			_userManager = userManager;
+			_userService = userService;
 			_externalProviderService = externalProviderService;
 		}
 
@@ -48,25 +47,16 @@ namespace Identity.API.Pages.Account.Register
 		{
 			if (ModelState.IsValid)
 			{
-				var user = await _userManager.FindByNameAsync(Input.Email);
-				if (user != null)
+				var result = await _userService.AddUserAsync(_mapper.Map<CreateUserModel>(Input));
+				if (result.IsFailed)
 				{
-					ModelState.AddModelError("registration", "Email already exists");
+					foreach (var reasons in result.Errors.SelectMany(e => e.Reasons))
+					{
+						ModelState.AddModelError("registration", reasons.Message);
+					}
+
 					await BuildModelAsync(Input.ReturnUrl);
 					return Page();
-				}
-
-				user = new ApplicationUser(Input.Email)
-				{
-					FirstName = Input.FirstName,
-					LastName = Input.LastName,
-					EmailConfirmed = true
-				};
-
-				var result = await _userManager.CreateAsync(user, Input.Password);
-				if (!result.Succeeded)
-				{
-					throw new Exception(result.Errors.First().Description);
 				}
 
 				return string.IsNullOrWhiteSpace(Input.ReturnUrl)

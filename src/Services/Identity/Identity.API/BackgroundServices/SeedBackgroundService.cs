@@ -1,14 +1,11 @@
 ﻿using Identity.API.Data;
-using Identity.API.Models;
-using IdentityModel;
-using Microsoft.AspNetCore.Identity;
+using Identity.API.Services.User;
+using Identity.API.Services.User.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -37,51 +34,21 @@ namespace Identity.API.BackgroundServices
 
 			await using var scope = _serviceProvider.CreateAsyncScope();
 			var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-			var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-			var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
+			var userService = scope.ServiceProvider.GetRequiredService<IUserService>();
 
-			await context.Database.MigrateAsync();
+			await context.Database.MigrateAsync(stoppingToken);
 
 			var email = _configuration["Seed:AdminEmail"];
 			var password = _configuration["ADMIN_PASSWORD"];
 			var roleName = "Admin";
 
-			var role = await roleManager.FindByNameAsync(roleName);
-			if (role == null)
+			var result = await userService.AddUserAsync(new CreateUserModel
 			{
-				role = new ApplicationRole(roleName);
-				var result = await roleManager.CreateAsync(role);
-				if (!result.Succeeded)
-				{
-					throw new Exception(result.Errors.First().Description);
-				}
-			}
-
-			var user = await userManager.FindByNameAsync(email);
-			if (user == null)
-			{
-				user = new ApplicationUser(email)
-				{
-					EmailConfirmed = true,
-				};
-				var result = await userManager.CreateAsync(user, password);
-				if (!result.Succeeded)
-				{
-					throw new Exception(result.Errors.First().Description);
-				}
-
-				result = await userManager.AddToRoleAsync(user, roleName);
-				if (!result.Succeeded)
-				{
-					throw new Exception(result.Errors.First().Description);
-				}
-
-				result = await userManager.AddClaimAsync(user, new Claim(JwtClaimTypes.Role, roleName));
-				if (!result.Succeeded)
-				{
-					throw new Exception(result.Errors.First().Description);
-				}
-			}
+				Email = email,
+				Password = password,
+				FirstName = "Admin",
+				LastName = "Admin"
+			}, [roleName]);
 		}
 	}
 }

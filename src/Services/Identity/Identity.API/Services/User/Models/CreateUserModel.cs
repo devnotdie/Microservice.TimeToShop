@@ -1,6 +1,6 @@
 ﻿namespace Identity.API.Services.User.Models
 {
-	public class CreateUser
+	public class CreateUserModel
 	{
 		public string Email { get; set; }
 

@@ -16,6 +16,12 @@ namespace Identity.API.Configurations
 
 		public static IEnumerable<ApiResource> GetApiResources => new ApiResource[]
 		{
+			new ApiResource
+			{
+				Name = "Identity",
+				Scopes = { "web.full" },
+				UserClaims = { "role" }
+			}
 		};
 
 		public static IEnumerable<ApiScope> ApiScopes => new ApiScope[]
@@ -45,15 +51,18 @@ namespace Identity.API.Configurations
 			},
 			new()
 			{
-				ClientId = "fakeservice",
-				AllowedGrantTypes = GrantTypes.ClientCredentials,
-				ClientSecrets ={ new Secret("5038e66d61ab4054af678f996e890068".Sha256()) },
+				ClientId = "fakeapp",
+				AllowedGrantTypes = GrantTypes.ResourceOwnerPasswordAndClientCredentials,
+				ClientSecrets = { new Secret("5038e66d61ab4054af678f996e890068".Sha256()) },
 				AllowOfflineAccess = true,
+				AlwaysSendClientClaims = true,
 				AllowedScopes =
 				{
+					IdentityServerConstants.StandardScopes.OpenId,
+					"roles",
 					"web.full"
 				}
-			},
+			}
 		};
 	}
 }

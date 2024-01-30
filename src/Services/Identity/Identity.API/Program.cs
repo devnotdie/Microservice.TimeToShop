@@ -1,21 +1,24 @@
-﻿using Duende.IdentityServer;
+﻿using BuildingBlocks.Common.Extensions;
+using BuildingBlocks.Common.Grpc.Interceptors;
+using BuildingBlocks.Grpc.Interceptors;
+using Duende.IdentityServer;
 using Identity.API.BackgroundServices;
 using Identity.API.Configurations;
 using Identity.API.Data;
 using Identity.API.Grpc;
 using Identity.API.Models;
+using Identity.API.Profiles;
 using Identity.API.Services.ExternalProviders;
+using Identity.API.Services.User;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Net;
+using Serilog;
 using System.Reflection;
 using System.Threading.Tasks;
 
@@ -27,15 +30,21 @@ namespace Identity.API
 		{
 			var builder = WebApplication.CreateBuilder(args);
 
-			builder.Logging.AddFilter("Grpc", LogLevel.Debug);
+			builder.Host.UseLogging(builder.Environment);
 
-			builder.Services.AddGrpc();
+			builder.Services.AddGrpc(options =>
+			{
+				options.Interceptors.Add<ExceptionInterceptor>();
+				options.Interceptors.Add<LoggingInterceptor>();
+			});
 			builder.Services.AddGrpcReflection();
 			builder.Services.AddRazorPages();
 			builder.Services.AddDbContext<ApplicationDbContext>(options =>
 			{
 				var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-				options.UseSqlServer(string.Format(connectionString, builder.Configuration["DB_PASSWORD"]));
+				options
+				.UseSqlServer(string.Format(connectionString, builder.Configuration["DB_PASSWORD"]))
+				.EnableSensitiveDataLogging();
 			});
 
 			builder.Services
@@ -56,6 +65,7 @@ namespace Identity.API
 				.AddInMemoryApiResources(Config.GetApiResources)
 				.AddInMemoryClients(Config.Clients(builder.Configuration))
 				.AddAspNetIdentity<ApplicationUser>()
+				.AddProfileService<CommonProfileService>()
 				.AddDeveloperSigningCredential();
 
 			builder.Services
@@ -71,15 +81,20 @@ namespace Identity.API
 					options.ClientSecret = builder.Configuration["GOOGLE_SECRET"];
 				});
 
+			builder.Services.AddDefaultAuthentication(builder.Configuration);
+			builder.Services.AddHttpContextAccessor();
 			builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 			builder.Services.AddHostedService<SeedBackgroundService>();
 			builder.Services.AddScoped<IExternalProviderService, ExternalProviderService>();
+			builder.Services.AddScoped<IUserService, UserService>();
 
 			builder.Services
 				.AddHealthChecks()
 				.AddDbContextCheck<ApplicationDbContext>();
 
 			var app = builder.Build();
+			await app.CheckHealthAsync();
+
 			if (app.Environment.IsDevelopment())
 			{
 				app.UseMigrationsEndPoint();
@@ -89,6 +104,7 @@ namespace Identity.API
 			app.UseStaticFiles();
 			app.UseCookiePolicy(new CookiePolicyOptions { MinimumSameSitePolicy = SameSiteMode.Lax });
 			app.UseRouting();
+			app.UseSerilogRequestLogging();
 			app.UseIdentityServer();
 			app.UseAuthorization();
 

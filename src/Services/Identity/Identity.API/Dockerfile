@@ -4,11 +4,14 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
 USER app
 WORKDIR /app
 EXPOSE 80
+EXPOSE 81
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Services/Identity/Identity.API/Identity.API.csproj", "Services/Identity/Identity.API/"]
+COPY ["BuildingBlocks/BuildingBlocks.Grpc/BuildingBlocks.Grpc.csproj", "BuildingBlocks/BuildingBlocks.Grpc/"]
+COPY ["BuildingBlocks/Common/BuildingBlocks.Common/BuildingBlocks.Common.csproj", "BuildingBlocks/Common/BuildingBlocks.Common/"]
 RUN dotnet restore "./Services/Identity/Identity.API/./Identity.API.csproj"
 COPY . .
 WORKDIR "/src/Services/Identity/Identity.API"
